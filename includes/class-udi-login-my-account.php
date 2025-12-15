@@ -35,6 +35,36 @@ class UDI_Login_My_Account {
 		add_action( 'woocommerce_account_' . self::HISTORY_ENDPOINT . '_endpoint', array( $this, 'render_history_endpoint' ) );
 		add_action( 'woocommerce_account_dashboard', array( $this, 'render_dashboard_cards' ), 25 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'update_option_udi_login_settings', array( $this, 'schedule_flush_rewrites' ), 10, 2 );
+		add_action( 'admin_init', array( $this, 'maybe_flush_rewrites' ) );
+	}
+
+	/**
+	 * Schedule flush if endpoint setting changed.
+	 *
+	 * @param array $old_value Old settings.
+	 * @param array $new_value New settings.
+	 * @return void
+	 */
+	public function schedule_flush_rewrites( $old_value, $new_value ) {
+		$old = isset( $old_value['my_account_history_endpoint'] ) ? (bool) $old_value['my_account_history_endpoint'] : false;
+		$new = isset( $new_value['my_account_history_endpoint'] ) ? (bool) $new_value['my_account_history_endpoint'] : false;
+
+		if ( $old !== $new ) {
+			set_transient( 'udi_flush_qs_rules', true, 60 );
+		}
+	}
+
+	/**
+	 * Flush rewrite rules if scheduled.
+	 *
+	 * @return void
+	 */
+	public function maybe_flush_rewrites() {
+		if ( get_transient( 'udi_flush_qs_rules' ) ) {
+			flush_rewrite_rules();
+			delete_transient( 'udi_flush_qs_rules' );
+		}
 	}
 
 	/**
