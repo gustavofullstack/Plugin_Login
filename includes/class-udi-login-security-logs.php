@@ -150,7 +150,7 @@ class UDI_Login_Security_Logs {
 			wp_die( esc_html__( 'Você não tem permissão para executar esta ação.', 'udi-custom-login' ) );
 		}
 
-		if ( ! isset( $_POST['udi_logs_nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['udi_logs_nonce'] ), 'udi_clear_logs' ) ) {
+		if ( ! isset( $_POST['udi_logs_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['udi_logs_nonce'] ) ), 'udi_clear_logs' ) ) {
 			wp_die( esc_html__( 'Sessão inválida.', 'udi-custom-login' ) );
 		}
 

@@ -24,6 +24,11 @@ if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'emergency-fix.php' ) ) {
 	require_once UDI_LOGIN_PLUGIN_DIR . 'emergency-fix.php';
 }
 
+// Load Composer autoloader
+if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+	require_once UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php';
+}
+
 require_once UDI_LOGIN_PLUGIN_DIR . 'includes/class-udi-login-plugin.php';
 
 UDI_Login_Plugin::instance();

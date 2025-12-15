@@ -94,7 +94,7 @@ class UDI_Login_Google {
 	 */
 	public function ajax_handle_google_login() {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), 'udi_google_login' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'udi_google_login' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Sessão inválida.', 'udi-custom-login' ) ) );
 		}
 
@@ -175,13 +175,34 @@ class UDI_Login_Google {
 			return false;
 		}
 
+		// Use Google API Client if available
+		if ( class_exists( 'Google_Client' ) ) {
+			try {
+				$client = new Google_Client( array( 'client_id' => $client_id ) );
+				$payload = $client->verifyIdToken( $token );
+
+				if ( $payload ) {
+					return $payload;
+				}
+			} catch ( Exception $e ) {
+				// Fallback or log error
+				udi_login_log_security_event(
+					'google_login_failed',
+					'Google API Client Exception: ' . $e->getMessage(),
+					array( 'token_snippet' => substr( $token, 0, 10 ) . '...' )
+				);
+				return false;
+			}
+		}
+
+		// Fallback to manual verification if library is missing (though it shouldn't be with Composer)
 		// Decode JWT without verification (we'll verify signature via Google endpoint)
 		$parts = explode( '.', $token );
 		if ( count( $parts ) !== 3 ) {
 			return false;
 		}
 
-		// Verify token with Google's tokeninfo endpoint
+		// Verify token with Google's tokeninfo endpoint (LEGACY FALLBACK)
 		$response = wp_remote_get(
 			'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode( $token ),
 			array(
