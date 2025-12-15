@@ -166,8 +166,8 @@ class UDI_Login_Assets {
 					'subheadline'=> udi_login_get_option( 'subheadline', '' ),
 				),
 				'ajaxNonce'  => wp_create_nonce( 'udi_login_switch' ),
-				'i18nShow'   => __( 'Ocultar senha', 'udi-custom-login' ),
-				'i18nHide'   => __( 'Mostrar senha', 'udi-custom-login' ),
+				'labelShowPassword' => __( 'Mostrar senha', 'udi-custom-login' ),
+				'labelHidePassword' => __( 'Ocultar senha', 'udi-custom-login' ),
 			)
 		);
 	}

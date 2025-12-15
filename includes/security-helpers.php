@@ -54,11 +54,18 @@ function udi_login_log_security_event( $event_type, $message, $context = array()
 function udi_login_get_client_ip() {
 	$ip = '';
 
-	if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-	} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-	} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+	// Prioritize REMOTE_ADDR unless we explicitly trust proxies
+	$ip = '';
+
+	if ( defined( 'UDI_TRUST_PROXY' ) && UDI_TRUST_PROXY ) {
+		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+		}
+	}
+
+	if ( empty( $ip ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 		$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 	}
 

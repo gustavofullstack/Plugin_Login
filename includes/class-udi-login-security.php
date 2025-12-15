@@ -67,7 +67,7 @@ class UDI_Login_Security {
 		}
 
 		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		
 		if ( $host && $uri ) {
 			$redirect = 'https://' . $host . $uri;
@@ -260,11 +260,16 @@ class UDI_Login_Security {
 	protected function get_ip_address() {
 		$ip = '';
 
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+		// Prioritize REMOTE_ADDR unless we explicitly trust proxies
+		if ( defined( 'UDI_TRUST_PROXY' ) && UDI_TRUST_PROXY ) {
+			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+				$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+				$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+			}
+		}
+
+		if ( empty( $ip ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 

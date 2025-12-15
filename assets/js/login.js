@@ -34,8 +34,8 @@
 				if ( ! $input.length ) {
 					return;
 				}
-				var showText = window.udiLogin && window.udiLogin.i18nShow ? window.udiLogin.i18nShow : 'Ocultar senha';
-				var hideText = window.udiLogin && window.udiLogin.i18nHide ? window.udiLogin.i18nHide : 'Mostrar senha';
+				var showText = window.udiLogin && window.udiLogin.labelShowPassword ? window.udiLogin.labelShowPassword : 'Ocultar senha';
+				var hideText = window.udiLogin && window.udiLogin.labelHidePassword ? window.udiLogin.labelHidePassword : 'Mostrar senha';
 
 				if ( 'password' === $input.attr( 'type' ) ) {
 					$input.attr( 'type', 'text' );
@@ -114,7 +114,7 @@
 					sitekey: siteKey,
 				} );
 
-				$el.attr( 'data-rendered', widgetId );
+				$el.data( 'rendered', widgetId );
 			} );
 		},
 	};

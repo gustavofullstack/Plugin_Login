@@ -314,11 +314,16 @@ class UDI_Login_Renderer {
 	protected function get_client_ip() {
 		$ip = '';
 		
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+		// Prioritize REMOTE_ADDR unless we explicitly trust proxies
+		if ( defined( 'UDI_TRUST_PROXY' ) && UDI_TRUST_PROXY ) {
+			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+				$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
+			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+				$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+			}
+		}
+
+		if ( empty( $ip ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 		
