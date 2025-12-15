@@ -1,0 +1,277 @@
+:root {
+	--udi-black: #111111;
+	--udi-dark: #1a1a1a;
+	--udi-gray: #2a2a2a;
+	--udi-text: #ededed;
+	--udi-text-soft: #c9c9c9;
+	--udi-neon: #39ff14;
+	--udi-neon-soft: #53ff2a;
+	--udi-neon-glow: rgba(57, 255, 20, 0.35);
+	--udi-danger: #ff4747;
+	--udi-success: #39ff14;
+	--udi-bg: #1a1a1a;
+	/* background for divider */
+}
+
+.udi-login-viewport {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 3rem 1.5rem;
+	background: #333333;
+	background-size: cover;
+	background-position: center;
+	position: relative;
+	overflow: hidden;
+}
+
+.udi-login-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(51, 51, 51, 0.92);
+	backdrop-filter: blur(4px);
+}
+
+.udi-login-card {
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 2rem;
+	padding: 3rem;
+	border-radius: 24px;
+	background: rgba(17, 17, 17, 0.85);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 25px var(--udi-neon-glow);
+	z-index: 1;
+	max-width: 1100px;
+	width: 100%;
+	color: var(--udi-text);
+}
+
+.udi-login-card__intro h1 {
+	font-size: 2.4rem;
+	margin-bottom: 0.75rem;
+	color: var(--udi-text);
+}
+
+.udi-login-card__intro p {
+	color: var(--udi-text-soft);
+	margin-bottom: 1rem;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.udi-login-logo img {
+	max-width: 180px;
+	margin-bottom: 1.5rem;
+	filter: drop-shadow(0 0 15px var(--udi-neon-glow));
+}
+
+.udi-login-card__form {
+	background: rgba(26, 26, 26, 0.9);
+	border-radius: 18px;
+	padding: 2rem;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.udi-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.udi-login-forms {
+	position: relative;
+}
+
+.udi-login-forms.is-loading {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.udi-login-forms.is-loading::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 18px;
+	box-shadow: 0 0 25px rgba(0, 0, 0, 0.45);
+}
+
+.udi-field label {
+	display: block;
+	margin-bottom: 0.35rem;
+	color: var(--udi-text);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+.udi-field input,
+.udi-field textarea {
+	width: 100%;
+	padding: 0.9rem 1rem;
+	border-radius: 12px;
+	border: 1px solid var(--udi-gray);
+	background: rgba(17, 17, 17, 0.7);
+	color: var(--udi-text);
+	font-size: 1rem;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.udi-field input:focus,
+.udi-field textarea:focus {
+	outline: none;
+	border-color: var(--udi-neon);
+	box-shadow: 0 0 0 2px var(--udi-neon-glow);
+}
+
+.udi-password-wrapper {
+	display: flex;
+	align-items: center;
+	background: rgba(17, 17, 17, 0.7);
+	border-radius: 12px;
+	border: 1px solid var(--udi-gray);
+}
+
+.udi-password-wrapper input {
+	border: none;
+	background: transparent;
+}
+
+.udi-toggle-password {
+	background: none;
+	border: none;
+	color: var(--udi-text-soft);
+	padding: 0 1rem;
+	cursor: pointer;
+	transition: color 0.2s ease;
+}
+
+.udi-toggle-password:hover {
+	color: var(--udi-neon);
+}
+
+.udi-icon-eye::before {
+	content: '\1F441';
+	font-size: 1.1rem;
+}
+
+.udi-form__meta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.9rem;
+	color: var(--udi-text-soft);
+}
+
+.udi-checkbox {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.udi-checkbox input {
+	width: 18px;
+	height: 18px;
+	border-radius: 4px;
+	border: 1px solid var(--udi-gray);
+}
+
+.udi-link {
+	color: var(--udi-neon);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.udi-link:hover {
+	color: var(--udi-neon-soft);
+}
+
+.udi-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.9rem 1.5rem;
+	border-radius: 999px;
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	cursor: pointer;
+	border: none;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.udi-btn--primary {
+	background: var(--udi-neon);
+	color: #0b0b0b;
+	box-shadow: 0 0 35px var(--udi-neon-glow);
+}
+
+.udi-btn--primary:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 0 45px var(--udi-neon-glow);
+}
+
+.udi-login-message {
+	padding: 0.85rem 1rem;
+	border-radius: 10px;
+	margin-bottom: 0.75rem;
+}
+
+.udi-login-message--error {
+	background: rgba(255, 71, 71, 0.15);
+	color: var(--udi-danger);
+	border: 1px solid rgba(255, 71, 71, 0.3);
+}
+
+.udi-login-message--success {
+	background: rgba(57, 255, 20, 0.15);
+	color: var(--udi-success);
+	border: 1px solid var(--udi-neon-glow);
+}
+
+.udi-login-note {
+	padding: 1rem;
+	margin-top: 1rem;
+	border-radius: 12px;
+	background: rgba(42, 42, 42, 0.6);
+	border: 1px dashed rgba(83, 255, 42, 0.3);
+}
+
+.udi-form__footer {
+	text-align: center;
+	font-size: 0.95rem;
+	color: var(--udi-text-soft);
+}
+
+.udi-login-recaptcha-note {
+	font-size: 0.75rem;
+	color: var(--udi-text-soft);
+	margin-top: 1rem;
+}
+
+.udi-woocommerce-login .udi-login-viewport {
+	min-height: auto;
+	padding: 2rem 0;
+}
+
+@media (max-width: 960px) {
+	.udi-login-card {
+		padding: 2rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.udi-login-card {
+		padding: 1.5rem;
+	}
+
+	.udi-login-card__intro {
+		text-align: center;
+	}
+
+	.udi-login-tabs {
+		flex-direction: column;
+	}
+}

@@ -1,0 +1,52 @@
+/* Google Sign-In Styles */
+.udi-google-signin {
+	margin-top: 20px;
+}
+
+.udi-divider {
+	position: relative;
+	text-align: center;
+	margin: 24px 0;
+	font-size: 14px;
+	color: #666;
+}
+
+.udi-divider::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.1) 20%,
+		rgba(255, 255, 255, 0.1) 80%,
+		transparent
+	);
+}
+
+.udi-divider span {
+	position: relative;
+	background: var(--udi-bg);
+	padding: 0 16px;
+	z-index: 1;
+}
+
+.g_id_signin {
+	display: flex !important;
+	justify-content: center !important;
+	margin-top: 16px;
+}
+
+/* Google One Tap customizations */
+#g_id_onload {
+	position: absolute;
+}
+
+/* Loading state for Google button */
+.udi-google-signin.loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
