@@ -1,0 +1,11 @@
+# Protect sensitive files
+<FilesMatch "^(composer\.json|composer\.lock)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect vendor directory if exposed
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^vendor/.* - [F,L]
+</IfModule>

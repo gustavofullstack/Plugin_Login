@@ -121,6 +121,11 @@ class UDI_Login_Plugin {
 		require_once UDI_LOGIN_PLUGIN_DIR . 'includes/class-udi-login-woocommerce.php';
 		require_once UDI_LOGIN_PLUGIN_DIR . 'includes/class-udi-login-my-account.php';
 		require_once UDI_LOGIN_PLUGIN_DIR . 'includes/class-udi-login-security-logs.php';
+		
+		// Core
+		if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'includes/Core/Validation.php' ) ) {
+			require_once UDI_LOGIN_PLUGIN_DIR . 'includes/Core/Validation.php';
+		}
 	}
 
 	/**
