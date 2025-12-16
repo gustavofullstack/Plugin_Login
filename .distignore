@@ -1,0 +1,17 @@
+.git
+.gitignore
+.distignore
+.DS_Store
+.vscode
+.idea
+build.sh
+composer.lock
+composer.json
+phpunit.xml
+tests
+docs
+node_modules
+README.md
+CHANGELOG.md
+src
+udi-custom-login-v*.zip
