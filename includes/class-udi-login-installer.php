@@ -26,7 +26,39 @@ class UDI_Login_Installer {
 		if ( class_exists( 'UDI_Login_My_Account' ) ) {
 			UDI_Login_My_Account::add_history_endpoint();
 		}
+		self::create_tables();
 		flush_rewrite_rules();
+	}
+
+	/**
+	 * Create custom database tables.
+	 *
+	 * @return void
+	 */
+	protected static function create_tables() {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'udi_security_logs';
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE $table_name (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			event_type varchar(50) NOT NULL,
+			message text NOT NULL,
+			ip_address varchar(45) NOT NULL,
+			ip_hash char(64) NOT NULL,
+			user_id bigint(20) unsigned DEFAULT 0,
+			meta_json longtext DEFAULT NULL,
+			created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			PRIMARY KEY  (id),
+			KEY event_type (event_type),
+			KEY ip_hash (ip_hash),
+			KEY user_id (user_id),
+			KEY created_at (created_at)
+		) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $sql );
 	}
 
 	/**

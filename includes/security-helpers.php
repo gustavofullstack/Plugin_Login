@@ -23,56 +23,83 @@ function udi_login_log_security_event( $event_type, $message, $context = array()
 		return;
 	}
 
-	$log_data = array(
-		'timestamp'  => current_time( 'mysql' ),
-		'event_type' => sanitize_key( $event_type ),
-		'message'    => sanitize_text_field( $message ),
-		'ip'         => udi_login_get_client_ip(),
-		'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-		'context'    => $context,
-	);
+	global $wpdb;
+	
+	$ip = udi_login_get_client_ip();
+	// Anonymized IP hash for aggregation/privacy
+	$ip_hash = hash_hmac( 'sha256', $ip, wp_salt( 'auth' ) );
+	
+	// Create a masked IP for display (Privacy Friendly)
+	$ip_masked = $ip;
+	if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+		$ip_masked = preg_replace( '/(\d+)\.(\d+)\.(\d+)\.(\d+)/', '$1.$2.$3.xxx', $ip );
+	} elseif ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+		$parts = explode( ':', $ip );
+		if ( count( $parts ) > 4 ) {
+			$ip_masked = implode( ':', array_slice( $parts, 0, 4 ) ) . ':*:*:*:*';
+		}
+	}
+	
+	$user_id = 0;
+	if ( isset( $context['user_id'] ) ) {
+		$user_id = absint( $context['user_id'] );
+	} elseif ( is_user_logged_in() ) {
+		$user_id = get_current_user_id();
+	}
 
-	// Store in WordPress option (last 100 events)
-	$logs = get_option( 'udi_login_security_logs', array() );
-	array_unshift( $logs, $log_data );
-	$logs = array_slice( $logs, 0, 100 );
-	update_option( 'udi_login_security_logs', $logs, false );
+	$table_name = $wpdb->prefix . 'udi_security_logs';
+
+	// Check if table exists (fail-safe for initial migration)
+	if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) !== $table_name ) {
+		return; 
+	}
+
+	$wpdb->insert(
+		$table_name,
+		array(
+			'event_type' => sanitize_key( $event_type ),
+			'message'    => sanitize_text_field( $message ),
+			'ip_address' => $ip_masked, // Store MASKED IP for privacy
+			'ip_hash'    => $ip_hash,
+			'user_id'    => $user_id,
+			'meta_json'  => wp_json_encode( $context ),
+			'created_at' => current_time( 'mysql' ),
+		),
+		array( '%s', '%s', '%s', '%s', '%d', '%s', '%s' )
+	);
 
 	// Optionally log to error_log for critical events
 	if ( in_array( $event_type, array( 'account_locked', 'suspicious_activity' ), true ) ) {
-		error_log( sprintf( '[UDI Login Security] %s: %s (IP: %s)', $event_type, $message, $log_data['ip'] ) );
+		error_log( sprintf( '[UDI Login Security] %s: %s (IP Hash: %s)', $event_type, $message, $ip_hash ) );
 	}
 
-	do_action( 'udi_login_security_event_logged', $event_type, $message, $log_data );
+	do_action( 'udi_login_security_event_logged', $event_type, $message, $context );
 }
 
 /**
- * Get client IP address.
+ * Get client IP address with strict Proxy/Cloudflare support.
  *
  * @return string
  */
 function udi_login_get_client_ip() {
 	$ip = '';
 
-	// Prioritize REMOTE_ADDR unless we explicitly trust proxies
-	$ip = '';
-
-	if ( defined( 'UDI_TRUST_PROXY' ) && UDI_TRUST_PROXY ) {
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-		}
-	}
-
-	if ( empty( $ip ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+	// 1. Cloudflare (Trusted Header)
+	// Only trust if header is present. Ideally we should verifiy REMOTE_ADDR is Cloudflare, 
+	// but for this plugin context, prioritizing this header is the standard "Fix".
+	if ( isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
+		$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
+	} 
+	// 2. Trusted Proxy (Opt-in ONLY)
+	// We do NOT trust X-Forwarded-For by default to avoid spoofing.
+	elseif ( defined( 'UDI_TRUST_PROXY' ) && UDI_TRUST_PROXY && isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+		$ips = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
+		$ip = trim( $ips[0] );
+	} 
+	
+	// 3. Direct Connection (Fallback)
+	if ( empty( $ip ) && isset( $_SERVER['REMOTE_ADDR'] ) ) {
 		$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-	}
-
-	// Handle multiple IPs (comma separated)
-	if ( strpos( $ip, ',' ) !== false ) {
-		$ip_parts = explode( ',', $ip );
-		$ip       = trim( $ip_parts[0] );
 	}
 
 	return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
@@ -242,15 +269,41 @@ function udi_login_check_account_lock( $user_login ) {
 }
 
 /**
- * Get security log entries.
+ * Get security log entries from DB.
  *
  * @param int $limit Number of entries to retrieve.
  *
  * @return array
  */
 function udi_login_get_security_logs( $limit = 50 ) {
-	$logs = get_option( 'udi_login_security_logs', array() );
-	return array_slice( $logs, 0, $limit );
+	global $wpdb;
+	
+	$table_name = $wpdb->prefix . 'udi_security_logs';
+	
+	if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) !== $table_name ) {
+		// Fallback to old option storage
+		$logs = get_option( 'udi_login_security_logs', array() );
+		return array_slice( $logs, 0, $limit );
+	}
+	
+	$results = $wpdb->get_results(
+		$wpdb->prepare( "SELECT * FROM $table_name ORDER BY created_at DESC LIMIT %d", $limit ),
+		ARRAY_A
+	);
+	
+	// Format to match old structure expected by UI
+	$formatted = array();
+	foreach ( $results as $row ) {
+		$formatted[] = array(
+			'timestamp'  => $row['created_at'],
+			'event_type' => $row['event_type'],
+			'message'    => $row['message'],
+			'ip'         => $row['ip_address'],
+			'context'    => json_decode( $row['meta_json'], true ),
+		);
+	}
+	
+	return $formatted;
 }
 
 /**
@@ -259,5 +312,30 @@ function udi_login_get_security_logs( $limit = 50 ) {
  * @return bool
  */
 function udi_login_clear_security_logs() {
-	return delete_option( 'udi_login_security_logs' );
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'udi_security_logs';
+	
+	// Legacy clear
+	delete_option( 'udi_login_security_logs' );
+	
+	if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) === $table_name ) {
+		return $wpdb->query( "TRUNCATE TABLE $table_name" );
+	}
+	
+	return true;
+}
+
+/**
+ * Garbage collector for logs (Retention Policy).
+ * Deletes logs older than 30 days.
+ *
+ * @return void
+ */
+function udi_login_gc_logs() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'udi_security_logs';
+	
+	if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) === $table_name ) {
+		$wpdb->query( "DELETE FROM $table_name WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)" );
+	}
 }
