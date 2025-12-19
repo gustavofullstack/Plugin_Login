@@ -26,7 +26,23 @@ if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	require_once UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
+
 require_once UDI_LOGIN_PLUGIN_DIR . 'includes/class-udi-login-plugin.php';
+
+// Initialize Plugin Update Checker
+if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+    require_once UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php';
+    
+    // Only initialize if the class exists (composer installed)
+    if ( class_exists( 'YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+        $myUpdateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+            'https://github.com/gustavofullstack/Plugin_Login',
+            __FILE__,
+            'udi-custom-login'
+        );
+        $myUpdateChecker->setBranch('main');
+    }
+}
 
 UDI_Login_Plugin::instance();
 
