@@ -1,0 +1,98 @@
+name: Auto Release Plugin
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+      - 'composer.json'
+      - 'composer.lock'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          tools: composer
+
+      - name: Install Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Bump Version
+        id: version
+        run: |
+          # Read current version from file
+          CURRENT_VERSION=$(grep "Version:" udi-custom-login.php | awk '{print $3}')
+          echo "Current Version: $CURRENT_VERSION"
+          
+          # Increment Patch Version
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$minor.$((patch + 1))"
+          echo "New Version: $NEW_VERSION"
+          
+          # Update PHP file
+          sed -i "s/Version: $CURRENT_VERSION/Version: $NEW_VERSION/" udi-custom-login.php
+          sed -i "s/define( 'UDI_LOGIN_VERSION', '$CURRENT_VERSION' );/define( 'UDI_LOGIN_VERSION', '$NEW_VERSION' );/" udi-custom-login.php
+          
+          # Export to ENV and OUTPUT
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify Version Change
+        run: |
+          grep "Version:" udi-custom-login.php
+          grep "UDI_LOGIN_VERSION" udi-custom-login.php
+
+      - name: Commit and Push Version Bump
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add udi-custom-login.php
+          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+          git push origin main
+
+      - name: Create Plugin ZIP
+        run: |
+          # Create a temporary directory for the zip structure
+          mkdir udi-custom-login
+          
+          # Sync files excluding ignored ones
+          # We use rsync to easily exclude patterns
+          rsync -av --progress . udi-custom-login \
+            --exclude udi-custom-login \
+            --exclude .git \
+            --exclude .github \
+            --exclude .gitignore \
+            --exclude .distignore \
+            --exclude composer.json \
+            --exclude composer.lock \
+            --exclude build.sh \
+            --exclude .DS_Store
+            
+          # Zip it
+          zip -r "udi-custom-login.zip" udi-custom-login
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: "Automatic release for version ${{ steps.version.outputs.version }}"
+          files: udi-custom-login.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

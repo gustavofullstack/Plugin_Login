@@ -41,6 +41,13 @@ if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
             'udi-custom-login'
         );
         $myUpdateChecker->setBranch('main');
+        
+        // Configuração de Token para repositórios privados
+        // Defina UDI_LOGIN_GITHUB_TOKEN no wp-config.php para maior segurança
+        if ( defined( 'UDI_LOGIN_GITHUB_TOKEN' ) ) {
+            $myUpdateChecker->setAuthentication( UDI_LOGIN_GITHUB_TOKEN );
+        }
+
     }
 }
 
