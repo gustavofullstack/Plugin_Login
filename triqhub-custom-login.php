@@ -42,9 +42,9 @@ if ( file_exists( UDI_LOGIN_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
     // Only initialize if the class exists (composer installed)
     if ( class_exists( 'YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
         $myUpdateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-            'https://github.com/gustavofullstack/Plugin_Login',
+            'https://github.com/gustavofullstack/triqhub-custom-login',
             __FILE__,
-            'udi-custom-login'
+            'triqhub-custom-login'
         );
         $myUpdateChecker->setBranch('main');
         
