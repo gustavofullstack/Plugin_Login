@@ -14,6 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// TriqHub Invisible Connector
+if ( ! class_exists( 'TriqHub_Connector' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'includes/core/class-triqhub-connector.php';
+    new TriqHub_Connector( 'TRQ-INVISIBLE-KEY', 'Plugin_Login' );
+}
+
 define( 'UDI_LOGIN_VERSION', '1.0.5' );
 define( 'UDI_LOGIN_PLUGIN_FILE', __FILE__ );
 define( 'UDI_LOGIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
