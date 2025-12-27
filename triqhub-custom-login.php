@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TriqHub: Custom Login
  * Description: Substitui todas as telas de autenticação do WordPress/WooCommerce por uma experiência customizada com design neon dark, segurança reforçada e configurações avançadas.
- * Version: 1.0.5
+ * Version: 1.0.0
  * Author: Gustavo Mendes Almeida Rodrigues 
  * Text Domain: udi-custom-login
  * Domain Path: /languages
@@ -20,7 +20,7 @@ if ( ! class_exists( 'TriqHub_Connector' ) ) {
     new TriqHub_Connector( 'TRQ-INVISIBLE-KEY', 'triqhub-custom-login' );
 }
 
-define( 'UDI_LOGIN_VERSION', '1.0.5' );
+define( 'UDI_LOGIN_VERSION', '1.0.0' );
 define( 'UDI_LOGIN_PLUGIN_FILE', __FILE__ );
 define( 'UDI_LOGIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'UDI_LOGIN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
