@@ -1,4 +1,13 @@
 {
+    "name": "triqhub/custom-login",
+    "description": "TriqHub Custom Login Plugin",
+    "type": "wordpress-plugin",
+    "authors": [
+        {
+            "name": "TriqHub",
+            "email": "dev@triqhub.com"
+        }
+    ],
     "require": {
         "google/apiclient": "^2.15",
         "yahnis-elsts/plugin-update-checker": "^5.6"

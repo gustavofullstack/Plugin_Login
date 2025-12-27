@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // TriqHub Invisible Connector
 if ( ! class_exists( 'TriqHub_Connector' ) ) {
     require_once plugin_dir_path( __FILE__ ) . 'includes/core/class-triqhub-connector.php';
-    new TriqHub_Connector( 'TRQ-INVISIBLE-KEY', 'Plugin_Login' );
+    new TriqHub_Connector( 'TRQ-INVISIBLE-KEY', 'triqhub-custom-login' );
 }
 
 define( 'UDI_LOGIN_VERSION', '1.0.5' );
