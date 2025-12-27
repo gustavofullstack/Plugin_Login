@@ -1,104 +1,207 @@
-# Plugin de Tela de Login Personalizada (WordPress & WooCommerce)
+# TriqHub: Custom Login
 
-Documento com as especificações funcionais, visuais e técnicas para o desenvolvimento do plugin solicitado.
+## Introduction
 
-## 1. Objetivo do Projeto
-- Substituir integralmente todas as telas padrão de login, registro e recuperação de senha do WordPress/WooCommerce por experiências personalizadas com foco em branding, conversão e segurança.
-- Garantir consistência visual com a identidade dark/neon da marca, maior usabilidade e recursos avançados (login social, captcha, limites de tentativas, etc.).
-- Fornecer configurações amigáveis no painel administrativo para que a loja ajuste estilos, mensagens, fluxos e integrações sem editar código.
+TriqHub: Custom Login is a comprehensive WordPress plugin that replaces all default WordPress and WooCommerce authentication screens with a fully customizable, secure, and modern login experience. Featuring a distinctive neon dark design aesthetic, the plugin provides advanced security features, extensive customization options, and seamless integration with WooCommerce. It is designed for administrators who require professional-grade authentication interfaces with enhanced security and branding capabilities.
 
-## 2. Diretrizes de UI/UX
-- **Paleta e estilos**: aplicar estritamente as variáveis definidas (`--udi-black`, `--udi-neon`, etc.). Fundo predominante escuro, formulário em destaque (podendo ser container translúcido) e opção de imagem/gráfico de fundo discreto.
-- **Tipografia**: texto principal em `--udi-text`, tipografia consistente com o site. Botões em verde neon com animações de hover usando `--udi-neon-soft` e `--udi-neon-glow`.
-- **Layout**: formulário minimalista, campos essenciais, opção de login e registro lado a lado ou via abas responsivas (colunas em desktop, empilhados em mobile). Headline opcional e mensagens de boas-vindas configuráveis.
-- **Componentes aprimorados**: placeholders claros, validações em tempo real, indicador de força de senha, botão “mostrar/ocultar senha”, checkbox “lembrar-me” estilizada, links evidentes de registro e recuperação.
-- **Feedback visual**: estados de foco com glow neon, bordas em `--udi-danger` para erros, alertas estilizados com ícones/cores da paleta, micro animações leves (hover, loading, etc.).
-- **Branding**: logo custom acima ou próximo ao formulário com opção de upload no painel. Links do logo e textos alinhados ao branding da loja.
-- **Acessibilidade**: labels associados, contraste adequado, navegação por teclado, textos alternativos, alerts acessíveis (ARIA).
+## Features
 
-## 3. Funcionalidades Principais
-- **Formulários unificados**: login, registro e recuperação no front-end com mesma estética; se usuário estiver logado, exibir mensagem/atalho ou redirecionar.
-- **Login social**: integração nativa ou compatibilidade com plugins (ex.: Nextend Social Login). Botões estilizados, com suporte a Google, Facebook, Apple, Twitter, etc.
-- **Registro simplificado**: campos mínimos (nome, e-mail, senha ou e-mail/senha), email como username opcional, validações de disponibilidade e força de senha. Após registro, opção de login automático e redirecionamento configurável.
-- **Recuperação de senha**: fluxo completo dentro do layout custom, incluindo formulários de envio e redefinição; mensagens de email personalizadas opcionalmente.
-- **Redirecionamentos**: configurações para pós-login, pós-registro e pós-recuperação; suporte a regras por função (cliente, admin) e retorno à página anterior quando aplicável.
-- **Mensagens customizadas**: textos de sucesso/erro editáveis (i18n-ready) para login incorreto, bloqueio, cadastro finalizado, etc.
-- **Compatibilidade WooCommerce**: aplicar estilos na página “Minha Conta”, formulário de checkout (se exibir login) e quaisquer shortcodes/login hooks usados pelo WooCommerce.
-- **Shortcodes/Templates**: fornecer shortcode (ex.: `[udi_custom_login]`) e possibilidade de template override para inserir os formulários em páginas personalizadas.
+*   **Complete Login Override:** Redirects all `wp-login.php` and WooCommerce My Account login/registration pages to a custom-designed interface.
+*   **Neon Dark Design:** Modern, visually striking login interface with customizable branding elements.
+*   **Advanced Security:**
+    *   Google reCAPTCHA v3 integration for bot protection.
+    *   Configurable login attempt limiting and temporary account lockout.
+    *   Optional honeypot anti-spam field.
+    *   Security event logging with IP masking and data retention policies.
+    *   Strong password validation with configurable complexity rules.
+    *   Generic error messages to prevent username enumeration.
+*   **WooCommerce Integration:** Seamlessly styles WooCommerce login forms and offers customization options for the My Account area.
+*   **Customizable Branding:** Upload custom logos and background images, and configure headlines and subheadlines.
+*   **Flexible Redirects:** Set custom redirect URLs for post-login, post-logout, and post-registration actions.
+*   **Shortcode & Template Support:** Easily embed the login form anywhere using the `[udi_custom_login]` shortcode or dedicated page templates.
+*   **Security Dashboard:** View and manage security logs directly from the WordPress admin.
+*   **Automatic Updates:** Supports GitHub-based updates for easy version management.
+*   **TriqHub Connector:** Includes integration with the TriqHub ecosystem for extended functionality.
 
-## 4. Segurança
-- Obrigatoriedade de HTTPS (verificação/redirecionamento automático).
-- Integração com Google reCAPTCHA v2/v3 (configuração de Site Key/Secret no painel). Opção de ativar apenas após X falhas ou sempre.
-- Limite configurável de tentativas por usuário/IP com bloqueio temporário e mensagem dedicada.
-- Suporte/compatibilidade com 2FA (plugins populares) e, se viável, implementação nativa via TOTP/email/SMS.
-- Opção para URL de login customizada e redirecionamento controlado das rotas `wp-login.php`.
-- Saneamento/validação rigorosa (uso de funções WP, nonces, escape, prepared statements).
-- Política de senha forte e indicador visual; possibilidade de exigir requisitos mínimos.
-- Proteções anti-spam em registro (honeypot, confirmação de email, reCAPTCHA).
-- Compatibilidade com plugins de auditoria/logs; opcionalmente registrar tentativas/bloqueios.
+## Installation / Usage
 
-## 5. Desempenho
-- Carregar CSS/JS somente em páginas relevantes (wp-login, shortcode, Minha Conta, checkout se necessário).
-- Código modular, minimalista e minificado; evitar dependências pesadas.
-- Assets otimizados (imagens comprimidas, CSS crítico inline se preciso).
-- Scripts JS assíncronos/deferidos, sem bloquear thread principal; microinterações leves.
-- Compatibilidade com plugins de cache/CDN; documentar exceções (não cachear página de login).
-- Boas práticas gerais: nocache_headers em fluxos de autenticação, uso eficiente de APIs externas (captcha/OAuth), evitar consultas repetitivas.
+### Installation
 
-## 6. Configuração/Admin
-- Página de configurações no WP Admin (API Settings), preferencialmente organizada em abas: Design, Funcionalidades, Segurança, Redirecionamentos, Textos.
-- Campos previstos:
-  - Upload de logo, imagem de fundo, toggles para container translúcido, ajustes de cor (quando aplicável).
-  - Seleção de layout (colunas vs abas), mensagens de boas-vindas/headline.
-  - Ativação/ordem dos logins sociais e chaves das integrações.
-  - Configurações reCAPTCHA (tipo, chaves, quando exibir) e limites de tentativas (quantidade/duração).
-  - URLs de redirecionamento (com seletor de páginas ou campo livre), opção de diferenciar por função.
-  - Textos customizáveis para erros e confirmações, suportando placeholders.
-  - Opção de habilitar/desabilitar override de wp-login e WooCommerce.
-- Todos os campos com saneamento adequado e armazenamento usando `get_option`/`update_option`.
-- Incluir export/import das configurações (opcional) ou instruções para migração.
+1.  **Upload Plugin:** Navigate to **Plugins > Add New** in your WordPress admin. Click **Upload Plugin**, select the `triqhub-custom-login.zip` file, and click **Install Now**.
+2.  **Activate Plugin:** After installation, click **Activate Plugin**.
+3.  **Initial Setup:** Upon activation, the plugin will create necessary database tables. Configure the plugin via **Settings > UDI Login**.
 
-## 7. Implementação Técnica
-- Arquitetura orientada a ações/filtros: `login_enqueue_scripts`, `login_head`, `login_form`, `woocommerce_before_customer_login_form`, etc.
-- Prefixos únicos (`udi_login_*`) para funções, hooks, CSS e IDs.
-- Templates WooCommerce sobrescritos via filtro `woocommerce_locate_template` ou pasta `templates/woocommerce/myaccount/form-login.php`.
-- Shortcodes e widgets encapsulados; possibilidade de registrar rota custom (`rewrite_endpoint`) para URL amigável de login.
-- Internacionalização completa: usar `__()`, `_e()`, `_x()`; fornecer arquivo `.pot`.
-- Compatibilidade com WP 5.8+ e WooCommerce 7.x+. Testar também com temas padrão (Twenty Twenty-One) e populares (Astra, Flatsome).
-- Documentar hooks internos (ex.: `do_action('udi_login_after_fields')`) para extensões futuras.
-- Respeitar WordPress Coding Standards (PHPCS). CSS/JS seguindo convenções e com comentários apenas quando necessário para clarificar trechos complexos.
+### Basic Usage
 
-## 8. Testes e QA
-- Fluxos: login válido/ inválido, registro válido/duplicado, recuperação de senha, redirecionamentos.
-- Segurança: captcha ativo/inativo, bloqueios por tentativas, integração com plugin 2FA, mudança de URL.
-- UX: responsividade em breakpoints principais, navegação por teclado, leitores de tela, animações suaves.
-- Performance: medir com Lighthouse/Pingdom, garantir carregamento rápido (<2s em rede padrão).
-- Compatibilidade: verificar com WooCommerce My Account, checkout com login, shortcodes, além de garantir que WP Admin não é afetado.
-- Logs/debug: modo verbose opcional (constante ou toggle) registrando eventos relevantes durante desenvolvimento/testes.
+1.  **Create a Login Page:** Create a new page (e.g., "Login") and insert the `[udi_custom_login]` shortcode.
+2.  **Configure the Plugin:**
+    *   Go to **Settings > UDI Login**.
+    *   In the **General Settings** section, select the page you created in the "Página de Login" dropdown.
+    *   Enable "Substituir wp-login.php" to redirect the default login page.
+3.  **Customize Appearance:** Upload your logo and background image, and set your desired headlines in the **Textos** section.
+4.  **(Optional) Configure Security:** Enable and configure reCAPTCHA, login attempt limits, and other security features in the **Segurança** section.
 
-## 9. Documentação Entregue
-- Este README com especificações.
-- Guia de instalação/configuração (pode ser seção adicional ou arquivo separado) com:
-  - Pré-requisitos (versões WP, Woo, PHP, extensões).
-  - Passo a passo para configurar logo, cores, captcha, social login, redirecionamentos.
-  - Instruções para aplicar shortcode ou definir página custom de login.
-  - Notas sobre compatibilidade com cache/CDN e testes recomendados.
+## Configuration / Architecture
 
-## 10. Critérios de Aceite
-- As telas de login/registro/recuperação padrão são 100% substituídas pela interface personalizada.
-- WooCommerce “Minha Conta” e demais pontos de login refletem o mesmo design.
-- Todos os requisitos de segurança (HTTPS obrigatório, captcha, limites, validações, compatibilidade 2FA) estão ativos/ configuráveis.
-- Configurações administrativas permitem ajustar logo, mensagens, redirecionamentos e integrações sem tocar no código.
-- Código segue padrões WP, está traduzível e carrega assets apenas quando necessário.
-- Experiência de usuário suave, responsiva, com animações sutis e feedback claro.
+### Plugin Structure
 
-Com essas diretrizes, o plugin deverá oferecer uma experiência de login “absurdamente boa”, alinhando design premium, usabilidade e segurança reforçada para suportar o crescimento da loja WooCommerce.
+The plugin follows a modular architecture:
 
-## 11. Implementação
-O diretório agora contém o plugin `UDI Custom Login`, com:
-- Arquitetura em classes (`includes/`) cobrindo configurações, assets, formulários, segurança, shortcodes e integração WooCommerce.
-- Shortcode `[udi_custom_login]`, template completo (`templates/`) e override automático da página definida nas configurações.
-- Assets otimizados (`assets/css/login.css`, `assets/js/login.js`) com variáveis da paleta neon/dark.
-- Hooks de segurança (HTTPS obrigatório, bloqueio por tentativas, reCAPTCHA opcional) e redirecionamentos pós-login/registro/logout.
-- Página de configurações em `Configurações > UDI Login` permitindo definir logo, fundo, mensagens, chaves reCAPTCHA, limites de tentativas e URLs de redirecionamento.
-- Customização da página “Minha Conta” com novo endpoint de histórico, cartões de acesso rápido e menu reorganizado controlado nas configurações.
+*   **Main Plugin File (`triqhub-custom-login.php`):** Handles initialization, constants, update checker, and core hooks.
+*   **Core Class (`includes/class-udi-login-plugin.php`):** Singleton controller that orchestrates all components.
+*   **Components:**
+    *   **Renderer (`includes/class-udi-login-renderer.php`):** Manages the rendering of login forms and views.
+    *   **Shortcode (`includes/class-udi-login-shortcode.php`):** Handles the `[udi_custom_login]` shortcode.
+    *   **Settings (`includes/class-udi-login-settings.php`):** Manages the plugin's admin settings page and options.
+    *   **WooCommerce Integration (`includes/class-udi-login-woocommerce.php`):** Overrides WooCommerce templates and adds styling.
+    *   **Security Helpers (`includes/security-helpers.php`):** Contains functions for logging, IP handling, password validation, and account locking.
+    *   **Helpers (`includes/helpers.php`):** General helper functions for settings retrieval.
+*   **Templates (`templates/`):** Contains the HTML/PHP templates for the login interface (`layout.php`) and a dedicated page template (`page-login.php`).
+*   **Assets (`assets/`):** Houses CSS and JavaScript files for the frontend and admin styling.
+
+### Key Configuration Options
+
+Settings are managed under **Settings > UDI Login** and stored in the `udi_login_settings` option.
+
+*   **General Settings:**
+    *   `enable_custom_login`: Toggle to redirect `wp-login.php`.
+    *   `login_page_id`: The ID of the page containing the `[udi_custom_login]` shortcode.
+    *   `logo_id` / `background_id`: Media IDs for branding.
+    *   `woocommerce_styling`: Apply plugin styling to WooCommerce forms.
+*   **Messaging:**
+    *   `headline`: Main title on the login card.
+    *   `subheadline`: Supporting text.
+*   **Security:**
+    *   `enable_recaptcha`: Enable Google reCAPTCHA v3.
+    *   `recaptcha_site_key` / `recaptcha_secret_key`: Your reCAPTCHA API keys.
+    *   `limit_login_enabled`: Enable login attempt limiting.
+    *   `limit_login_attempts`: Number of failed attempts before lockout.
+    *   `limit_login_lockout`: Lockout duration in minutes.
+    *   `enable_security_logging`: Log security events to the database.
+    *   `enable_password_strength`: Enforce strong passwords during registration.
+    *   `password_min_length` / `password_min_score`: Parameters for password validation.
+*   **Redirects:** Configure `redirect_after_login`, `redirect_after_logout`, and `redirect_after_register`.
+
+### Database Schema
+
+The plugin creates a custom table for security logging:
+```sql
+CREATE TABLE `{wp_prefix}udi_security_logs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `event_type` varchar(50) NOT NULL,
+  `message` varchar(255) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `ip_hash` varchar(64) NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT 0,
+  `meta_json` longtext,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_type` (`event_type`),
+  KEY `ip_hash` (`ip_hash`),
+  KEY `user_id` (`user_id`),
+  KEY `created_at` (`created_at`)
+);
+```
+A daily cron job (`udi_login_daily_gc`) purges records older than 30 days.
+
+## API Reference / Hooks
+
+The plugin provides several actions and filters for developers.
+
+### Actions
+
+*   `udi_login_security_event_logged ( $event_type, $message, $context )`
+    *   Fired after a security event is logged to the database.
+    *   **Parameters:**
+        *   `$event_type` (string): Event type (e.g., 'login_failed', 'account_locked').
+        *   `$message` (string): Log message.
+        *   `$context` (array): Additional context data (user_id, etc.).
+
+*   `udi_login_intro ( $view, $settings )`
+    *   Fired within the introductory section of the login card, before the forms.
+    *   **Parameters:**
+        *   `$view` (string): Current view ('login', 'register', 'lostpassword').
+        *   `$settings` (array): The plugin's settings array.
+
+*   `udi_login_after_card ( $view, $settings )`
+    *   Fired after the main login card, outside the `.udi-login-card` container.
+    *   **Parameters:** Same as `udi_login_intro`.
+
+*   `udi_login_daily_gc`
+    *   Scheduled daily event that triggers the garbage collection for old security logs. Hooked to `udi_login_gc_logs()`.
+
+### Filters
+
+*   `udi_login_validate_password_strength ( array $result )`
+    *   Filters the result of the internal password strength validation.
+    *   **Parameters:**
+        *   `$result` (array): Contains keys `valid` (bool), `message` (string), `score` (int).
+    *   **Return:** Modified `$result` array.
+
+*   `udi_login_sanitize_redirect ( string $validated_url, string $original_url, string $default_url )`
+    *   Filters the sanitized redirect URL before it is used.
+    *   **Parameters:**
+        *   `$validated_url` (string): The URL after internal validation.
+        *   `$original_url` (string): The originally requested redirect URL.
+        *   `$default_url` (string): The fallback URL.
+    *   **Return:** The final redirect URL to use.
+
+### Functions
+
+*   `udi_login_log_security_event( $event_type, $message, $context = array() )`
+    *   Logs a security event. Respects the `enable_security_logging` setting.
+*   `udi_login_get_client_ip()`
+    *   Retrieves the client's IP address with support for Cloudflare (`HTTP_CF_CONNECTING_IP`) and opt-in proxy trust (`UDI_TRUST_PROXY` constant).
+*   `udi_login_validate_password_strength( $password )`
+    *   Validates a password against configured strength rules.
+*   `udi_login_check_account_lock( $user_login )`
+    *   Checks if a user account is temporarily locked.
+*   `udi_login_get_security_logs( $limit = 50 )`
+    *   Retrieves security log entries from the database.
+*   `udi_login_get_settings()` / `udi_login_get_option( $key, $default = null )`
+    *   Retrieve plugin settings.
+
+## Troubleshooting
+
+### Common Issues
+
+1.  **Login page redirects to `wp-login.php` in a loop.**
+    *   Ensure the "Substituir wp-login.php" option is enabled.
+    *   Verify the "Página de Login" setting points to the correct page containing the `[udi_custom_login]` shortcode.
+    *   Check for conflicts with other login redirect plugins (e.g., Members, Theme My Login). Temporarily disable them to test.
+
+2.  **Custom styling is not applied to WooCommerce login forms.**
+    *   Confirm the "Estilizar WooCommerce" option is enabled in the settings.
+    *   Clear any caching plugins or server-side caches (OPcache, Redis).
+    *   Ensure your theme hasn't overridden the WooCommerce template path.
+
+3.  **reCAPTCHA is not showing/working.**
+    *   Verify that "Google reCAPTCHA" is enabled.
+    *   Ensure both "Site Key" and "Secret Key" are correctly entered. These are different keys.
+    *   Check your browser's console for JavaScript errors that might prevent the reCAPTCHA script from loading.
+
+4.  **Security logs are not appearing in the admin.**
+    *   Confirm "Registro de Eventos de Segurança" is enabled.
+    *   Check that the `{wp_prefix}udi_security_logs` table exists in the database.
+    *   Verify the scheduled event `udi_login_daily_gc` is present in "Tools > Scheduled Actions" (if using WP CLI or a plugin to view cron events).
+
+5.  **"Could not create database table" error on activation.**
+    *   The database user account used by WordPress may lack `CREATE TABLE` permissions. Contact your hosting provider.
+    *   There might be a conflict with an existing table. The plugin should use `dbDelta()` for safe creation, but check for SQL errors in your server logs.
+
+### Debugging
+
+*   Enable `WP_DEBUG` in your `wp-config.php` file to log PHP errors:
+    ```php
+    define( 'WP_DEBUG', true );
+    define( 'WP_DEBUG_LOG', true );
+    ```
+*   For update issues, ensure the `UDI_LOGIN_GITHUB_TOKEN` constant is defined in `wp-config.php` if using a private repository:
+    ```php
+    define( 'UDI_LOGIN_GITHUB_TOKEN', 'your_github_personal_access_token_here' );
+    ```
+*   To trust proxy headers (e.g., behind a load balancer), you must explicitly opt-in by defining:
+    ```php
+    define( 'UDI_TRUST_PROXY', true );
+    ```
+    **Warning:** Only enable this if you are behind a trusted reverse proxy and have configured it correctly to set the `X-Forwarded-For` header.
